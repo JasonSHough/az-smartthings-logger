@@ -15,84 +15,82 @@
  *
  */
 definition(
-    name: "ST-Queue",
-    namespace: "jschnurr",
-    author: "Jeff Schnurr",
-    description: "Smartthings Azure Queue Integration",
-    category: "My Apps",
-    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
-    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
-    iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png") {
-    appSetting "QueueSecret"
-    appSetting "QueueURL"
-}
-
+    name: 'ST-Queue',
+    namespace: 'jschnurr',
+    author: 'Jeff Schnurr',
+    description: 'Smartthings Azure Queue Integration',
+    category: 'My Apps',
+    iconUrl: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png',
+    iconX2Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png',
+    iconX3Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png') {
+    appSetting 'QueueURL'  // format https://<storageaccount>.queue.core.windows.net/<queue>/messages?<sas token string>
+    }
 
 preferences {
-    section("Power Meter") {
-        input "powers", "capability.powerMeter", title: "Power Sensor", multiple: true, required: false
+    section('Power Meter') {
+        input 'powers', 'capability.powerMeter', title: 'Power Sensor', multiple: true, required: false
     }
-    section("Environment") {
-        input "temperatures", "capability.temperatureMeasurement", title: "Temperature Sensors", multiple: true, required: false
+    section('Environment') {
+        input 'temperatures', 'capability.temperatureMeasurement', title: 'Temperature Sensors', multiple: true, required: false
     }
-    section("Security Sensors") {
-        input "motions", "capability.motionSensor", title: "Motion Sensors", multiple: true, required: false
-        }
-    section("Switches") {
-        input "switches", "capability.switch", title: "Switches", multiple: true, required: false
+    section('Security Sensors') {
+        input 'motions', 'capability.motionSensor', title: 'Motion Sensors', multiple: true, required: false
     }
-     section("Acceleration Sensors") {
-        input "acceleration sensors", "capability.accelerationSensor", title: "Acceleration Sensors", multiple: true, required: false
+    section('Switches') {
+        input 'switches', 'capability.switch', title: 'Switches', multiple: true, required: false
     }
-    section("Contact Sensors") {
-        input "contact sensors", "capability.contactSensor", title: "Contact Sensors", multiple: true, required: false
+    section('Acceleration Sensors') {
+        input 'acceleration sensors', 'capability.accelerationSensor', title: 'Acceleration Sensors', multiple: true, required: false
     }
-    section("Buttons") {
-        input "buttons", "capability.button", title: "Buttons", multiple: true, required: false
+    section('Contact Sensors') {
+        input 'contact sensors', 'capability.contactSensor', title: 'Contact Sensors', multiple: true, required: false
+    }
+    section('Buttons') {
+        input 'buttons', 'capability.button', title: 'Buttons', multiple: true, required: false
     }
 }
 
 def installed() {
-	log.debug "Installed with settings: ${settings}"
+    log.debug "Installed with settings: ${settings}"
 
-	initialize()
+    initialize()
 }
 
 def updated() {
-	log.debug "Updated with settings: ${settings}"
+    log.debug "Updated with settings: ${settings}"
 
-	unsubscribe()
-	initialize()
+    unsubscribe()
+    initialize()
 }
 
 def initialize() {
-    subscribe(powers, "power", powerHandler)
-    subscribe(temperatures, "temperature", temperatureHandler)
-    subscribe(motions, "motion", motionHandler)
-    subscribe(contacts, "contact", contactHandler)
-    subscribe(switches, "switch", switchHandler)
+    subscribe(powers, 'power', powerHandler)
+    subscribe(temperatures, 'temperature', temperatureHandler)
+    subscribe(motions, 'motion', motionHandler)
+    subscribe(contacts, 'contact', contactHandler)
+    subscribe(switches, 'switch', switchHandler)
 }
 
 def sendEvent(sensorId, sensorName, sensorType, value) {
     log.debug "sending ${sensorId} at ${value}"
-    def now = new Date().format("yyyyMMdd-HH:mm:ss.SSS", TimeZone.getTimeZone('UTC'))
-    def cleanedSensorId = sensorId.replace(" ", "")
+    def now = new Date().format('yyyyMMdd-HH:mm:ss.SSS', TimeZone.getTimeZone('UTC'))
+    def cleanedSensorId = sensorId.replace(' ', '')
     def params = [
         uri: "${appSettings.QueueURL}",
         body: "<QueueMessage><MessageText>{ sensorId : \"${cleanedSensorId}\", sensorName : \"${sensorName}\", sensorType : \"${sensorType}\", value : \"${value}\" }</MessageText></QueueMessage>",
-        contentType: "application/xml; charset=utf-8",
-        requestContentType: "application/atom+xml;type=entry;charset=utf-8",
-        headers: ["Authorization": "${appSettings.QueueSecret}",
-                  "x-ms-date": now],
+        contentType: 'application/xml; charset=utf-8',
+        requestContentType: 'application/atom+xml;type=entry;charset=utf-8',
+        headers: ['x-ms-date': now],
     ]
 
-	try {
+    try {
         httpPost(params) { resp ->
             log.debug "response message ${resp}"
         }
     } catch (e) {
-        // For some reason SmartThings treats 200 as an error response, so we need to comment this out to avoid errors. Uncomment the line below to debug errors
-        log.error "something went wrong: $e"
+        // successful creates come back as 200, which ST sees as an error?
+        // log.error "something went wrong: $e"
+        }
     }
 }
 
@@ -123,10 +121,9 @@ def contactHandler(evt) {
 }
 
 def switchHandler(evt) {
-    if (evt.value == "on") {
+    if (evt.value == 'on') {
         sendEvent(evt.displayName + 'switch', evt.displayName, 'switch', 'on')
-    } else if (evt.value == "off") {
+    } else if (evt.value == 'off') {
         sendEvent(evt.displayName + 'switch', evt.displayName, 'switch', 'off')
     }
 }
-
