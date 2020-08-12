@@ -1,8 +1,8 @@
+/* groovylint-disable LineLength */
 /**
  *  Azure Queues
  *
  *  Copyrigth 2020 Jeff Schnurr
- *    ** based off of the 2017 work of Sam Cogan
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -30,25 +30,31 @@ definition(
 
 preferences {
     section('Power Meter') {
-        input 'powers', 'capability.powerMeter', title: 'Power Sensor', multiple: true, required: false
+        input 'power', 'capability.powerMeter', title: 'Power Sensor', multiple: true, required: false
     }
     section('Environment') {
+        input 'thermOperatingStates', 'capability.thermostat', title: 'Therm Operating States', multiple: true, required: false
         input 'temperatures', 'capability.temperatureMeasurement', title: 'Temperature Sensors', multiple: true, required: false
     }
-    section('Security Sensors') {
+    section('Security') {
+        input 'contacts', 'capability.contactSensor', title: 'Contact Sensors', multiple: true, required: false
         input 'motions', 'capability.motionSensor', title: 'Motion Sensors', multiple: true, required: false
+        input 'locks', 'capability.lock', title: 'Locks', multiple: true, required: false
     }
     section('Switches') {
         input 'switches', 'capability.switch', title: 'Switches', multiple: true, required: false
+        input 'dimmerSwitches', 'capability.switchLevel', title: 'Dimmer Switches', required: false, multiple: true
     }
-    section('Acceleration Sensors') {
-        input 'acceleration sensors', 'capability.accelerationSensor', title: 'Acceleration Sensors', multiple: true, required: false
-    }
-    section('Contact Sensors') {
-        input 'contact sensors', 'capability.contactSensor', title: 'Contact Sensors', multiple: true, required: false
-    }
-    section('Buttons') {
-        input 'buttons', 'capability.button', title: 'Buttons', multiple: true, required: false
+    section('Log Other Devices') {
+        input 'acceleration', 'capability.accelerationSensor', title: 'Acceleration Sensors', multiple: true, required: false
+        input 'alarm', 'capability.alarm', title: 'Alarm', required: false, multiple: true
+        input 'batteries', 'capability.battery', title: 'Batteries', multiple: true, required: false
+        input 'beacon', 'capability.beacon', title: 'Beacon', required: false, multiple: true
+        input 'button', 'capability.button', title: 'Buttons', multiple: true, required: false
+        input 'colorControl', 'capability.colorControl', title: 'Color Control', multiple: true, required: false
+        input 'humidities', 'capability.relativeHumidityMeasurement', title: 'Humidity Sensors', required: false, multiple: true
+        input 'illuminances', 'capability.illuminanceMeasurement', title: 'Illuminance Sensors', required: false, multiple: true
+        input 'presenceSensors', 'capability.presenceSensor', title: 'Presence Sensors', required: false, multiple: true
     }
 }
 
@@ -66,11 +72,33 @@ def updated() {
 }
 
 def initialize() {
-    subscribe(powers, 'power', powerHandler)
-    subscribe(temperatures, 'temperature', temperatureHandler)
-    subscribe(motions, 'motion', motionHandler)
-    subscribe(contacts, 'contact', contactHandler)
-    subscribe(switches, 'switch', switchHandler)
+    // Power
+    subscribe(power, "power", handlePowerEvent)
+
+    // Environment
+    subscribe(temperatures, "temperature", handleEnvironmentEvent)
+    subscribe(humidities, "humidity", handleEnvironmentEvent)
+    subscribe(thermOperatingStates, "thermostatOperatingState", handleEnvironmentEvent)
+
+    // Security
+    subscribe(contacts, "contact", handleSecurityEvent)
+    subscribe(locks, "lock", handleSecurityEvent)
+    subscribe(motions, "motion", handleSecurityEvent)
+    subscribe(alarm, "alarm", handleSecurityEvent)
+
+    // Switches
+    subscribe(switches, "switch", handleSwitchEvent)
+    subscribe(dimmerSwitches, "level", handleSwitchEvent)
+    subscribe(dimmerSwitches, "switch", handleSwitchEvent)
+
+    // Other
+    subscribe(acceleration, "acceleration", handleOtherEvent)
+    subscribe(batteries, "battery", handleOtherEvent)
+    subscribe(beacon, "beacon", handleOtherEvent)
+    subscribe(button, "button", handleOtherEvent)
+    subscribe(colorControl, "Color Control", handleOtherEvent)
+    subscribe(illuminances, "illuminance", handleOtherEvent)
+    subscribe(presenceSensors, "presence", handleOtherEvent)
 }
 
 def sendEvent(evt, sensorType) {
@@ -84,20 +112,24 @@ def sendEvent(evt, sensorType) {
         requestContentType: 'application/atom+xml;type=entry;charset=utf-8',
         headers: ['x-ms-date': now],
     ]
+    // TODO: Move SAS token to header
 
     try {
         httpPost(params) { resp ->
             log.debug "response message ${resp}"
         }
     } catch (e) {
-        // successful creates come back as 200, which ST sees as an error?
-        log.error "something went wrong: $e"
+        // successful creates come back as 200, so filter for 'Created' and throw anything else
+        if (e.toString() != "groovyx.net.http.ResponseParseException: Created") {
+            log.error "Error sending event: $e"
+            throw e
         }
     }
+}
 
 private buildEventMessage(evt, sensorType) {
-  def key = evt.displayName.trim()+ ":" +evt.name
-  def payload = [
+    def key = evt.displayName.trim() + ':' + evt.name
+    def payload = [
         date: evt.isoDate,
         hub: evt.hubId,
         deviceId: evt.deviceId,
@@ -107,39 +139,41 @@ private buildEventMessage(evt, sensorType) {
         device: evt.displayName.trim(),
         property: evt.name.trim(),
         value: evt.value,
+        unit: evt.unit,
+        isphysical: evt.isPhysical(),
+        isstatechange: evt.isStateChange(),
         source: evt.source,
         location: evt.location
   ]
-    def attribs = ""
+    def attribs = ''
     def sep = ''
     payload.each { k, v ->
-      k = k.replaceAll('"', '\"')
-      v = "${v}".replaceAll('"', '\"')
-      attribs += "${sep}\"${k}\":\"${v}\""
-      sep = ','
+        k = k.replaceAll('"', '\"')
+        v = "${v}".replaceAll('"', '\"')
+        attribs += "${sep}\"${k}\":\"${v}\""
+        sep = ','
     }
-    def jsonstr = '{'+attribs+'}'
+    def jsonstr = '{' + attribs + '}'
     log.debug "JSON payload: ${jsonstr}"
     return jsonstr
 }
 
-
-def powerHandler(evt) {
-    sendEvent(evt, 'powerMeter')
+def handlePowerEvent (evt) {
+    sendEvent(evt, "power")
 }
 
-def temperatureHandler(evt) {
-    sendEvent(evt, 'temperature')
+def handleEnvironmentEvent (evt) {
+    sendEvent(evt, "environment")
 }
 
-def motionHandler(evt) {
-    sendEvent(evt, 'motion')
+def handleSecurityEvent (evt) {
+    sendEvent(evt, "security")
 }
 
-def contactHandler(evt) {
-    sendEvent(evt, 'contact')
+def handleSwitchEvent (evt) {
+    sendEvent(evt, "switch")
 }
 
-def switchHandler(evt) {
-    sendEvent(evt, 'switch')
+def handleOtherEvent (evt) {
+    sendEvent(evt, "other")
 }
