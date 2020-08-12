@@ -23,7 +23,9 @@ definition(
     iconUrl: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png',
     iconX2Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png',
     iconX3Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png') {
-    appSetting 'QueueURL'  // format https://<storageaccount>.queue.core.windows.net/<queue>/messages?<sas token string>
+    appSetting 'StorageAccount'
+    appSetting 'Queue'
+    appSetting 'SASToken'  // allowed services: Queue, Allowed Resource Types: Object, Allowed Permissions: Add
     }
 
 preferences {
@@ -71,13 +73,13 @@ def initialize() {
     subscribe(switches, 'switch', switchHandler)
 }
 
-def sendEvent(sensorId, sensorName, sensorType, value) {
-    log.debug "sending ${sensorId} at ${value}"
+def sendEvent(evt, sensorType) {
+    log.debug "sending ${evt.deviceId} at ${evt.value}"
     def now = new Date().format('yyyyMMdd-HH:mm:ss.SSS', TimeZone.getTimeZone('UTC'))
-    def cleanedSensorId = sensorId.replace(' ', '')
+    def payload = buildEventMessage(evt, sensorType)
     def params = [
-        uri: "${appSettings.QueueURL}",
-        body: "<QueueMessage><MessageText>{ sensorId : \"${cleanedSensorId}\", sensorName : \"${sensorName}\", sensorType : \"${sensorType}\", value : \"${value}\" }</MessageText></QueueMessage>",
+        uri: "https://${appSettings.StorageAccount}.queue.core.windows.net/${appSettings.Queue}/messages${appSettings.SASToken}",
+        body: "<QueueMessage><MessageText>${payload}</MessageText></QueueMessage>",
         contentType: 'application/xml; charset=utf-8',
         requestContentType: 'application/atom+xml;type=entry;charset=utf-8',
         headers: ['x-ms-date': now],
@@ -89,41 +91,55 @@ def sendEvent(sensorId, sensorName, sensorType, value) {
         }
     } catch (e) {
         // successful creates come back as 200, which ST sees as an error?
-        // log.error "something went wrong: $e"
+        log.error "something went wrong: $e"
         }
     }
+
+private buildEventMessage(evt, sensorType) {
+  def key = evt.displayName.trim()+ ":" +evt.name
+  def payload = [
+        date: evt.isoDate,
+        hub: evt.hubId,
+        deviceId: evt.deviceId,
+        deviceType: sensorType,
+        eventId: evt.id,
+        key: key,
+        device: evt.displayName.trim(),
+        property: evt.name.trim(),
+        value: evt.value,
+        source: evt.source,
+        location: evt.location
+  ]
+    def attribs = ""
+    def sep = ''
+    payload.each { k, v ->
+      k = k.replaceAll('"', '\"')
+      v = "${v}".replaceAll('"', '\"')
+      attribs += "${sep}\"${k}\":\"${v}\""
+      sep = ','
+    }
+    def jsonstr = '{'+attribs+'}'
+    log.debug "JSON payload: ${jsonstr}"
+    return jsonstr
 }
 
+
 def powerHandler(evt) {
-    sendEvent('powerMeter', evt.displayName, 'power', evt.value)
+    sendEvent(evt, 'powerMeter')
 }
 
 def temperatureHandler(evt) {
-    sendEvent(evt.displayName + 'temp', evt.displayName, 'temperature', evt.value)
+    sendEvent(evt, 'temperature')
 }
 
 def motionHandler(evt) {
-    if (evt.value == 'active') {
-        sendEvent(evt.displayName + 'motion', evt.displayName, 'motion', 'motion detected')
-    }
-    if (evt.value == 'inactive') {
-        sendEvent(evt.displayName + 'motion', evt.displayName, 'motion', 'no motion detected')
-    }
+    sendEvent(evt, 'motion')
 }
 
 def contactHandler(evt) {
-    if (evt.value == 'open') {
-        sendEvent(evt.displayName + 'contact', evt.displayName, 'doorOpen', 'open')
-    }
-    if (evt.value == 'closed') {
-        sendEvent(evt.displayName + 'contact', evt.displayName, 'doorOpen', 'closed')
-    }
+    sendEvent(evt, 'contact')
 }
 
 def switchHandler(evt) {
-    if (evt.value == 'on') {
-        sendEvent(evt.displayName + 'switch', evt.displayName, 'switch', 'on')
-    } else if (evt.value == 'off') {
-        sendEvent(evt.displayName + 'switch', evt.displayName, 'switch', 'off')
-    }
+    sendEvent(evt, 'switch')
 }
