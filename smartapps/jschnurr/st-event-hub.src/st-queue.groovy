@@ -102,9 +102,9 @@ def initialize() {
 }
 
 def sendEvent(evt, sensorType) {
-    log.debug "sending ${evt.deviceId} at ${evt.value}"
     def now = new Date().format('yyyyMMdd-HH:mm:ss.SSS', TimeZone.getTimeZone('UTC'))
     def payload = buildEventMessage(evt, sensorType)
+    log.debug "Sending AzureQ event payload: ${payload}"
     def params = [
         uri: "https://${appSettings.StorageAccount}.queue.core.windows.net/${appSettings.Queue}/messages${appSettings.SASToken}",
         body: "<QueueMessage><MessageText>${payload}</MessageText></QueueMessage>",
@@ -112,7 +112,6 @@ def sendEvent(evt, sensorType) {
         requestContentType: 'application/atom+xml;type=entry;charset=utf-8',
         headers: ['x-ms-date': now],
     ]
-    // TODO: Move SAS token to header
 
     try {
         httpPost(params) { resp ->
@@ -128,14 +127,12 @@ def sendEvent(evt, sensorType) {
 }
 
 private buildEventMessage(evt, sensorType) {
-    def key = evt.displayName.trim() + ':' + evt.name
     def payload = [
         date: evt.isoDate,
         hub: evt.hubId,
         deviceId: evt.deviceId,
         deviceType: sensorType,
         eventId: evt.id,
-        key: key,
         device: evt.displayName.trim(),
         property: evt.name.trim(),
         value: evt.value,
@@ -154,7 +151,6 @@ private buildEventMessage(evt, sensorType) {
         sep = ','
     }
     def jsonstr = '{' + attribs + '}'
-    log.debug "JSON payload: ${jsonstr}"
     return jsonstr
 }
 
