@@ -105,9 +105,10 @@ def sendEvent(evt, sensorType) {
     def now = new Date().format('yyyyMMdd-HH:mm:ss.SSS', TimeZone.getTimeZone('UTC'))
     def payload = buildEventMessage(evt, sensorType)
     log.debug "Sending AzureQ event payload: ${payload}"
+    def encoded = payload.bytes.encodeBase64()
     def params = [
         uri: "https://${appSettings.StorageAccount}.queue.core.windows.net/${appSettings.Queue}/messages${appSettings.SASToken}",
-        body: "<QueueMessage><MessageText>${payload}</MessageText></QueueMessage>",
+        body: "<QueueMessage><MessageText>${encoded}</MessageText></QueueMessage>",
         contentType: 'application/xml; charset=utf-8',
         requestContentType: 'application/atom+xml;type=entry;charset=utf-8',
         headers: ['x-ms-date': now],
