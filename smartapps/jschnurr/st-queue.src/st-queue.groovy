@@ -1,4 +1,3 @@
-/* groovylint-disable LineLength */
 /**
  *  Azure Queues
  *
@@ -12,7 +11,6 @@
  *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
- *
  */
 definition(
     name: 'ST-Queue',
@@ -25,7 +23,7 @@ definition(
     iconX3Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png') {
     appSetting 'StorageAccount'
     appSetting 'Queue'
-    appSetting 'SASToken'  // allowed services: Queue, Allowed Resource Types: Object, Allowed Permissions: Add
+    appSetting 'SASToken',  // allowed services: Queue, Allowed Resource Types: Object, Allowed Permissions: Add
     }
 
 preferences {
@@ -73,32 +71,32 @@ def updated() {
 
 def initialize() {
     // Power
-    subscribe(power, "power", handlePowerEvent)
+    subscribe(power, 'power', handlePowerEvent)
 
     // Environment
-    subscribe(temperatures, "temperature", handleEnvironmentEvent)
-    subscribe(humidities, "humidity", handleEnvironmentEvent)
-    subscribe(thermOperatingStates, "thermostatOperatingState", handleEnvironmentEvent)
+    subscribe(temperatures, 'temperature', handleEnvironmentEvent)
+    subscribe(humidities, 'humidity', handleEnvironmentEvent)
+    subscribe(thermOperatingStates, 'thermostatOperatingState', handleEnvironmentEvent)
 
     // Security
-    subscribe(contacts, "contact", handleSecurityEvent)
-    subscribe(locks, "lock", handleSecurityEvent)
-    subscribe(motions, "motion", handleSecurityEvent)
-    subscribe(alarm, "alarm", handleSecurityEvent)
+    subscribe(contacts, 'contact', handleSecurityEvent)
+    subscribe(locks, 'lock', handleSecurityEvent)
+    subscribe(motions, 'motion', handleSecurityEvent)
+    subscribe(alarm, 'alarm', handleSecurityEvent)
 
     // Switches
-    subscribe(switches, "switch", handleSwitchEvent)
-    subscribe(dimmerSwitches, "level", handleSwitchEvent)
-    subscribe(dimmerSwitches, "switch", handleSwitchEvent)
+    subscribe(switches, 'switch', handleSwitchEvent)
+    subscribe(dimmerSwitches, 'level', handleSwitchEvent)
+    subscribe(dimmerSwitches, 'switch', handleSwitchEvent)
 
     // Other
-    subscribe(acceleration, "acceleration", handleOtherEvent)
-    subscribe(batteries, "battery", handleOtherEvent)
-    subscribe(beacon, "beacon", handleOtherEvent)
-    subscribe(button, "button", handleOtherEvent)
-    subscribe(colorControl, "Color Control", handleOtherEvent)
-    subscribe(illuminances, "illuminance", handleOtherEvent)
-    subscribe(presenceSensors, "presence", handleOtherEvent)
+    subscribe(acceleration, 'acceleration', handleOtherEvent)
+    subscribe(batteries, 'battery', handleOtherEvent)
+    subscribe(beacon, 'beacon', handleOtherEvent)
+    subscribe(button, 'button', handleOtherEvent)
+    subscribe(colorControl, 'Color Control', handleOtherEvent)
+    subscribe(illuminances, 'illuminance', handleOtherEvent)
+    subscribe(presenceSensors, 'presence', handleOtherEvent)
 }
 
 def sendEvent(evt, sensorType) {
@@ -119,7 +117,7 @@ def sendEvent(evt, sensorType) {
         }
     } catch (e) {
         // successful creates come back as 200, so filter for 'Created' and throw anything else
-        if (e.toString() != "groovyx.net.http.ResponseParseException: Created") {
+        if (e.toString() != 'groovyx.net.http.ResponseParseException: Created') {
             log.error "Error sending event: $e"
             throw e
         }
@@ -140,7 +138,7 @@ private buildEventMessage(evt, sensorType) {
         isphysical: evt.isPhysical(),
         isstatechange: evt.isStateChange(),
         source: evt.source,
-        location: evt.location
+        location: evt.location,
   ]
     def attribs = ''
     def sep = ''
@@ -154,22 +152,22 @@ private buildEventMessage(evt, sensorType) {
     return jsonstr
 }
 
-def handlePowerEvent (evt) {
-    sendEvent(evt, "power")
+private handlePowerEvent (evt) {
+    sendEvent(evt, 'power')
 }
 
-def handleEnvironmentEvent (evt) {
-    sendEvent(evt, "environment")
+private handleEnvironmentEvent (evt) {
+    sendEvent(evt, 'environment')
 }
 
-def handleSecurityEvent (evt) {
-    sendEvent(evt, "security")
+private handleSecurityEvent (evt) {
+    sendEvent(evt, 'security')
 }
 
-def handleSwitchEvent (evt) {
-    sendEvent(evt, "switch")
+private handleSwitchEvent (evt) {
+    sendEvent(evt, 'switch')
 }
 
-def handleOtherEvent (evt) {
-    sendEvent(evt, "other")
+private handleOtherEvent (evt) {
+    sendEvent(evt, 'other')
 }
