@@ -12,6 +12,8 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  */
+// import groovy.json.JsonBuilder
+
 definition(
     name: 'ST-Queue',
     namespace: 'jschnurr',
@@ -21,9 +23,9 @@ definition(
     iconUrl: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png',
     iconX2Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png',
     iconX3Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png') {
-    appSetting 'StorageAccount'
-    appSetting 'Queue'
-    appSetting 'SASToken',  // allowed services: Queue, Allowed Resource Types: Object, Allowed Permissions: Add
+        appSetting 'StorageAccount'
+        appSetting 'Queue'
+        appSetting 'SASToken'  // allowed services: Queue, Allowed Resource Types: Object, Allowed Permissions: Add
     }
 
 preferences {
@@ -131,25 +133,17 @@ private buildEventMessage(evt, sensorType) {
         deviceId: evt.deviceId,
         deviceType: sensorType,
         eventId: evt.id,
-        device: evt.displayName.trim(),
-        property: evt.name.trim(),
+        device: evt.displayName,
+        property: evt.name,
         value: evt.value,
         unit: evt.unit,
         isphysical: evt.isPhysical(),
         isstatechange: evt.isStateChange(),
         source: evt.source,
-        location: evt.location,
-  ]
-    def attribs = ''
-    def sep = ''
-    payload.each { k, v ->
-        k = k.replaceAll('"', '\"')
-        v = "${v}".replaceAll('"', '\"')
-        attribs += "${sep}\"${k}\":\"${v}\""
-        sep = ','
-    }
-    def jsonstr = '{' + attribs + '}'
-    return jsonstr
+        location: evt.location.name,
+    ]
+    def data = new groovy.json.JsonBuilder(payload).toString()
+    return data
 }
 
 private handlePowerEvent (evt) {

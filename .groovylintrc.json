@@ -25,7 +25,13 @@
         "ParameterReassignment": {
             "enabled": false
         },
+        "TrailingComma": {
+            "enabled": false
+        },
         "UnnecessaryGetter": {
+            "enabled": false
+        },
+        "UnusedPrivateMethod": {
             "enabled": false
         },
         "VariableTypeRequired": {
