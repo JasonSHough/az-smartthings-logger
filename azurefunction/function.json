@@ -2,15 +2,21 @@
     "disabled": false,
     "bindings": [
         {
-            "authLevel": "anonymous",
-            "type": "httpTrigger",
+            "type": "queueTrigger",
             "direction": "in",
-            "name": "req"
+            "name": "myQueueItem",
+            "queueName": "%ST_QUEUENAME%",
+            "connection": "AzureWebJobsStorage"
         },
         {
-            "type": "http",
+            "type": "CosmosDB",
             "direction": "out",
-            "name": "res"
+            "name": "outputdoc",
+            "databaseName": "%CosmosDBName%",
+            "collectionName": "%CosmosCollection%",
+            "createIfNotExists": true,
+            "partitionKey": "/eventId",
+            "connectionStringSetting": "CosmosDBConnection"
         }
     ]
 }
