@@ -107,7 +107,7 @@ def sendEvent(evt, sensorType) {
     log.debug "Sending AzureQ event payload: ${payload}"
     def encoded = payload.bytes.encodeBase64()
     def params = [
-        uri: "https://${appSettings.StorageAccount}.queue.core.windows.net/${appSettings.Queue}/messages${appSettings.SASToken}",
+        uri: "https://${appSettings.StorageAccount}.queue.core.windows.net/${appSettings.Queue}/messages?${appSettings.SASToken}",
         body: "<QueueMessage><MessageText>${encoded}</MessageText></QueueMessage>",
         contentType: 'application/xml; charset=utf-8',
         requestContentType: 'application/atom+xml;type=entry;charset=utf-8',
