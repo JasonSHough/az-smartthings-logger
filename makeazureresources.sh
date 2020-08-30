@@ -102,7 +102,7 @@ az storage message put \
     --connection-string $storageConnectionString
 
 # Output required settings for the Smartthings SmartApp
-echo "\n\n-------------------\nSMARTTHINGS SETTINGS:\n \
+echo -e "\n\n-------------------\nSMARTTHINGS SETTINGS:\n \
   Queue: $storageQueueName\n \
   SASToken: $SASToken\n \
   StorageAccount: $storageName \
