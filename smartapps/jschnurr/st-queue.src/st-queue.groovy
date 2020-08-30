@@ -29,31 +29,31 @@ definition(
 
 preferences {
     section('Power Meter') {
-        input 'power', 'capability.powerMeter', title: 'Power Sensor', multiple: true, required: false
+        input 'power', 'capability.powerMeter', title: 'Power Sensor', multiple: true, required: false, hideWhenEmpty: true
     }
     section('Environment') {
-        input 'thermOperatingStates', 'capability.thermostat', title: 'Therm Operating States', multiple: true, required: false
-        input 'temperatures', 'capability.temperatureMeasurement', title: 'Temperature Sensors', multiple: true, required: false
+        input 'thermOperatingStates', 'capability.thermostat', title: 'Therm Operating States', multiple: true, required: false, hideWhenEmpty: true
+        input 'temperatures', 'capability.temperatureMeasurement', title: 'Temperature Sensors', multiple: true, required: false, hideWhenEmpty: true
     }
     section('Security') {
-        input 'contacts', 'capability.contactSensor', title: 'Contact Sensors', multiple: true, required: false
-        input 'motions', 'capability.motionSensor', title: 'Motion Sensors', multiple: true, required: false
-        input 'locks', 'capability.lock', title: 'Locks', multiple: true, required: false
+        input 'contacts', 'capability.contactSensor', title: 'Contact Sensors', multiple: true, required: false, hideWhenEmpty: true
+        input 'motions', 'capability.motionSensor', title: 'Motion Sensors', multiple: true, required: false, hideWhenEmpty: true
+        input 'locks', 'capability.lock', title: 'Locks', multiple: true, required: false, hideWhenEmpty: true
     }
     section('Switches') {
-        input 'switches', 'capability.switch', title: 'Switches', multiple: true, required: false
-        input 'dimmerSwitches', 'capability.switchLevel', title: 'Dimmer Switches', required: false, multiple: true
+        input 'switches', 'capability.switch', title: 'Switches', multiple: true, required: false, hideWhenEmpty: true
+        input 'dimmerSwitches', 'capability.switchLevel', title: 'Dimmer Switches', required: false, multiple: true, hideWhenEmpty: true
     }
     section('Log Other Devices') {
-        input 'acceleration', 'capability.accelerationSensor', title: 'Acceleration Sensors', multiple: true, required: false
-        input 'alarm', 'capability.alarm', title: 'Alarm', required: false, multiple: true
-        input 'batteries', 'capability.battery', title: 'Batteries', multiple: true, required: false
-        input 'beacon', 'capability.beacon', title: 'Beacon', required: false, multiple: true
-        input 'button', 'capability.button', title: 'Buttons', multiple: true, required: false
-        input 'colorControl', 'capability.colorControl', title: 'Color Control', multiple: true, required: false
-        input 'humidities', 'capability.relativeHumidityMeasurement', title: 'Humidity Sensors', required: false, multiple: true
-        input 'illuminances', 'capability.illuminanceMeasurement', title: 'Illuminance Sensors', required: false, multiple: true
-        input 'presenceSensors', 'capability.presenceSensor', title: 'Presence Sensors', required: false, multiple: true
+        input 'acceleration', 'capability.accelerationSensor', title: 'Acceleration Sensors', multiple: true, required: false, hideWhenEmpty: true
+        input 'alarm', 'capability.alarm', title: 'Alarm', required: false, multiple: true, hideWhenEmpty: true
+        input 'batteries', 'capability.battery', title: 'Batteries', multiple: true, required: false, hideWhenEmpty: true
+        input 'beacon', 'capability.beacon', title: 'Beacon', required: false, multiple: true, hideWhenEmpty: true
+        input 'button', 'capability.button', title: 'Buttons', multiple: true, required: false, hideWhenEmpty: true
+        input 'colorControl', 'capability.colorControl', title: 'Color Control', multiple: true, required: false, hideWhenEmpty: true
+        input 'humidities', 'capability.relativeHumidityMeasurement', title: 'Humidity Sensors', required: false, multiple: true, hideWhenEmpty: true
+        input 'illuminances', 'capability.illuminanceMeasurement', title: 'Illuminance Sensors', required: false, multiple: true, hideWhenEmpty: true
+        input 'presenceSensors', 'capability.presenceSensor', title: 'Presence Sensors', required: false, multiple: true, hideWhenEmpty: true
     }
 }
 
@@ -72,32 +72,32 @@ def updated() {
 
 def initialize() {
     // Power
-    subscribe(power, 'power', handlePowerEvent)
+    if (power) {subscribe(power, 'power', handlePowerEvent)}
 
     // Environment
-    subscribe(temperatures, 'temperature', handleEnvironmentEvent)
-    subscribe(humidities, 'humidity', handleEnvironmentEvent)
-    subscribe(thermOperatingStates, 'thermostatOperatingState', handleEnvironmentEvent)
+    if (temperatures) {subscribe(temperatures, 'temperature', handleEnvironmentEvent)}
+    if (humidities) {subscribe(humidities, 'humidity', handleEnvironmentEvent)}
+    if (thermOperatingStates) {subscribe(thermOperatingStates, 'thermostatOperatingState', handleEnvironmentEvent)}
 
     // Security
-    subscribe(contacts, 'contact', handleSecurityEvent)
-    subscribe(locks, 'lock', handleSecurityEvent)
-    subscribe(motions, 'motion', handleSecurityEvent)
-    subscribe(alarm, 'alarm', handleSecurityEvent)
+    if (contacts) {subscribe(contacts, 'contact', handleSecurityEvent)}
+    if (locks) {subscribe(locks, 'lock', handleSecurityEvent)}
+    if (motions) {subscribe(motions, 'motion', handleSecurityEvent)}
+    if (alarm) {subscribe(alarm, 'alarm', handleSecurityEvent)}
 
     // Switches
-    subscribe(switches, 'switch', handleSwitchEvent)
-    subscribe(dimmerSwitches, 'level', handleSwitchEvent)
-    subscribe(dimmerSwitches, 'switch', handleSwitchEvent)
+    if (switches) {subscribe(switches, 'switch', handleSwitchEvent)}
+    if (dimmerSwitches) {subscribe(dimmerSwitches, 'level', handleSwitchEvent)}
+    if (dimmerSwitches) {subscribe(dimmerSwitches, 'switch', handleSwitchEvent)}
 
     // Other
-    subscribe(acceleration, 'acceleration', handleOtherEvent)
-    subscribe(batteries, 'battery', handleOtherEvent)
-    subscribe(beacon, 'beacon', handleOtherEvent)
-    subscribe(button, 'button', handleOtherEvent)
-    subscribe(colorControl, 'Color Control', handleOtherEvent)
-    subscribe(illuminances, 'illuminance', handleOtherEvent)
-    subscribe(presenceSensors, 'presence', handleOtherEvent)
+    if (acceleration) {subscribe(acceleration, 'acceleration', handleOtherEvent)}
+    if (batteries) {subscribe(batteries, 'battery', handleOtherEvent)}
+    if (beacon) {subscribe(beacon, 'beacon', handleOtherEvent)}
+    if (button) {subscribe(button, 'button', handleOtherEvent)}
+    if (colorControl) {subscribe(colorControl, 'Color Control', handleOtherEvent)}
+    if (illuminances) {subscribe(illuminances, 'illuminance', handleOtherEvent)}
+    if (presenceSensors) {subscribe(presenceSensors, 'presence', handleOtherEvent)}
 }
 
 def sendEvent(evt, sensorType) {
