@@ -1,15 +1,18 @@
 #!/bin/bash
 
-# Function app and storage account names must be unique.
-resourceGroupName=smartthings
+########## User Settings ##########
+# Storage account, function app and cosmos names must be unique.
+# Note the $RANDOM values break indempotence for this script.
+resourceGroupName=smartthings$RANDOM
 storageName=ststorageaccount$RANDOM
 storageQueueName=stevents
-functionAppName=qtocosmos
+functionAppName=qtocosmos$RANDOM
 region=canadacentral
-cosmosAccountName=cosmos-$RANDOM
+cosmosAccountName=cosmos$RANDOM
 cosmosDBName=smarthome
 cosmosContainer=stevents
 cosmosFreeTier=false # if this is your first cosmos DB, set to true
+######## End User Settings #########
 
 # Create a resource group.
 az group create --name $resourceGroupName --location $region
