@@ -72,32 +72,32 @@ def updated() {
 
 def initialize() {
     // Power
-    if (power) {subscribe(power, 'power', handlePowerEvent)}
+    subscribe(power, 'power', handlePowerEvent)
 
     // Environment
-    if (temperatures) {subscribe(temperatures, 'temperature', handleEnvironmentEvent)}
-    if (humidities) {subscribe(humidities, 'humidity', handleEnvironmentEvent)}
-    if (thermOperatingStates) {subscribe(thermOperatingStates, 'thermostatOperatingState', handleEnvironmentEvent)}
+    subscribe(temperatures, 'temperature', handleEnvironmentEvent)
+    subscribe(humidities, 'humidity', handleEnvironmentEvent)
+    subscribe(thermOperatingStates, 'thermostatOperatingState', handleEnvironmentEvent)
 
     // Security
-    if (contacts) {subscribe(contacts, 'contact', handleSecurityEvent)}
-    if (locks) {subscribe(locks, 'lock', handleSecurityEvent)}
-    if (motions) {subscribe(motions, 'motion', handleSecurityEvent)}
-    if (alarm) {subscribe(alarm, 'alarm', handleSecurityEvent)}
+    subscribe(contacts, 'contact', handleSecurityEvent)
+    subscribe(locks, 'lock', handleSecurityEvent)
+    subscribe(motions, 'motion', handleSecurityEvent)
+    subscribe(alarm, 'alarm', handleSecurityEvent)
 
     // Switches
-    if (switches) {subscribe(switches, 'switch', handleSwitchEvent)}
-    if (dimmerSwitches) {subscribe(dimmerSwitches, 'level', handleSwitchEvent)}
-    if (dimmerSwitches) {subscribe(dimmerSwitches, 'switch', handleSwitchEvent)}
+    subscribe(switches, 'switch', handleSwitchEvent)
+    subscribe(dimmerSwitches, 'level', handleSwitchEvent)
+    subscribe(dimmerSwitches, 'switch', handleSwitchEvent)
 
     // Other
-    if (acceleration) {subscribe(acceleration, 'acceleration', handleOtherEvent)}
-    if (batteries) {subscribe(batteries, 'battery', handleOtherEvent)}
-    if (beacon) {subscribe(beacon, 'beacon', handleOtherEvent)}
-    if (button) {subscribe(button, 'button', handleOtherEvent)}
-    if (colorControl) {subscribe(colorControl, 'Color Control', handleOtherEvent)}
-    if (illuminances) {subscribe(illuminances, 'illuminance', handleOtherEvent)}
-    if (presenceSensors) {subscribe(presenceSensors, 'presence', handleOtherEvent)}
+    subscribe(acceleration, 'acceleration', handleOtherEvent)
+    subscribe(batteries, 'battery', handleOtherEvent)
+    subscribe(beacon, 'beacon', handleOtherEvent)
+    subscribe(button, 'button', handleOtherEvent)
+    subscribe(colorControl, 'Color Control', handleOtherEvent)
+    subscribe(illuminances, 'illuminance', handleOtherEvent)
+    subscribe(presenceSensors, 'presence', handleOtherEvent)
 }
 
 def sendEvent(evt, sensorType) {
