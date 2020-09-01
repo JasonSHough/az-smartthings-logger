@@ -155,7 +155,6 @@ def handleEnvironmentEvent (evt) {
 }
 
 def handleSecurityEvent (evt) {
-	log.info "handleSecurityEvent called"
     sendEvent(evt, 'security')
 }
 
