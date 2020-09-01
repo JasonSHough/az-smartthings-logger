@@ -72,68 +72,32 @@ def updated() {
 
 def initialize() {
     // Power
-    if(power) {
-        subscribe(power, 'power', handlePowerEvent)
-    }
+    if(power) { subscribe(power, 'power', handlePowerEvent) }
 
     // Environment
-    if(temperatures) {
-        subscribe(temperatures, 'temperature', handleEnvironmentEvent)
-    }
-    if(humidities) {
-        subscribe(humidities, 'humidity', handleEnvironmentEvent)
-    }
-    if(thermOperatingStates) {
-        subscribe(thermOperatingStates, 'thermostatOperatingState', handleEnvironmentEvent)
-    }
+    if(temperatures) { subscribe(temperatures, 'temperature', handleEnvironmentEvent) }
+    if(humidities) { subscribe(humidities, 'humidity', handleEnvironmentEvent) }
+    if(thermOperatingStates) { subscribe(thermOperatingStates, 'thermostatOperatingState', handleEnvironmentEvent) }
 
     // Security
-    if(contacts) {
-        subscribe(contacts, 'contact', handleSecurityEvent)
-    }
-    if(locks) {
-        subscribe(locks, 'lock', handleSecurityEvent)
-    }
-    if(motions) {
-        subscribe(motions, 'motion', handleSecurityEvent)
-    }
-    if(alarm) {
-        subscribe(alarm, 'alarm', handleSecurityEvent)
-    }
+    if(contacts) { subscribe(contacts, 'contact', handleSecurityEvent) }
+    if(locks) { subscribe(locks, 'lock', handleSecurityEvent) }
+    if(motions) { subscribe(motions, 'motion', handleSecurityEvent) }
+    if(alarm) { subscribe(alarm, 'alarm', handleSecurityEvent) }
 
     // Switches
-    if(switches) {
-        subscribe(switches, 'switch', handleSwitchEvent)
-    }
-    if(dimmerSwitches) {
-        subscribe(dimmerSwitches, 'level', handleSwitchEvent)
-    }
-    if(dimmerSwitches) {
-        subscribe(dimmerSwitches, 'switch', handleSwitchEvent)
-    }
+    if(switches) { subscribe(switches, 'switch', handleSwitchEvent) }
+    if(dimmerSwitches) { subscribe(dimmerSwitches, 'level', handleSwitchEvent) }
+    if(dimmerSwitches) { subscribe(dimmerSwitches, 'switch', handleSwitchEvent) }
 
     // Other
-    if(acceleration) {
-        subscribe(acceleration, 'acceleration', handleOtherEvent)
-    }
-    if(batteries) {
-        subscribe(batteries, 'battery', handleOtherEvent)
-    }
-    if(beacon) {
-        subscribe(beacon, 'beacon', handleOtherEvent)
-    }
-    if(button) {
-        subscribe(button, 'button', handleOtherEvent)
-    }
-    if(colorControl) {
-        subscribe(colorControl, 'Color Control', handleOtherEvent)
-    }
-    if(illuminances) {
-        subscribe(illuminances, 'illuminance', handleOtherEvent)
-    }
-    if(presenceSensors) {
-        subscribe(presenceSensors, 'presence', handleOtherEvent)
-    }
+    if(acceleration) { subscribe(acceleration, 'acceleration', handleOtherEvent) }
+    if(batteries) { subscribe(batteries, 'battery', handleOtherEvent) }
+    if(beacon) { subscribe(beacon, 'beacon', handleOtherEvent) }
+    if(button) { subscribe(button, 'button', handleOtherEvent) }
+    if(colorControl) { subscribe(colorControl, 'Color Control', handleOtherEvent) }
+    if(illuminances) { subscribe(illuminances, 'illuminance', handleOtherEvent) }
+    if(presenceSensors) { subscribe(presenceSensors, 'presence', handleOtherEvent) }
 }
 
 def sendEvent(evt, sensorType) {
@@ -182,22 +146,23 @@ private buildEventMessage(evt, sensorType) {
     return data
 }
 
-private handlePowerEvent (evt) {
+def handlePowerEvent (evt) {
     sendEvent(evt, 'power')
 }
 
-private handleEnvironmentEvent (evt) {
+def handleEnvironmentEvent (evt) {
     sendEvent(evt, 'environment')
 }
 
-private handleSecurityEvent (evt) {
+def handleSecurityEvent (evt) {
+	log.info "handleSecurityEvent called"
     sendEvent(evt, 'security')
 }
 
-private handleSwitchEvent (evt) {
+def handleSwitchEvent (evt) {
     sendEvent(evt, 'switch')
 }
 
-private handleOtherEvent (evt) {
+def handleOtherEvent (evt) {
     sendEvent(evt, 'other')
 }
