@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "terraform:init": "terraform init -backend-config=\"resource_group_name=blah\"",
+    "prebuild:terraform": "mkdirp --mode=0700 build",
+    "build:terraform": "jszip-cli",
+    "func": "func",
+    "test": "echo \"No tests yet...\"",
+    "clean": "rimraf build",
+    "build:prune": "npm prune --production",
+    "prebuild:zip": "mkdirp --mode=0700 build",
+    "build:zip": "jszip-cli",
+    "build": "run-s clean build:compile build:zip",
+    "predeploy": "npm run build",
+    "deploy": "terraform apply"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+    "@azure/functions": "^1.2.2",
+    "@ffflorian/jszip-cli": "^3.1.0",
+    "azure-functions-core-tools": "^2.7.3188",
+    "copyfiles": "^2.4.1",
+    "mkdirp": "^1.0.4",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2"
+  }
+}
