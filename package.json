@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "terraform:init": "terraform init -backend-config=\"resource_group_name=blah\"",
-    "prebuild:terraform": "mkdirp --mode=0700 build",
-    "build:terraform": "jszip-cli",
+    "preterraform:build": "run-s clean",
+    "terraform:build": "copyfiles -f src/terraform/*.tf build/terraform",
+    "preterraform:init:dev": "run-s terraform:build",
+    "terraform:init:dev": "terraform -chdir=build/terraform init -backend-config=../../config/dev/tfbackend.config",
+    "preterraform:plan:dev": "run-s terraform:init:dev",
+    "terraform:plan:dev": "terraform -chdir=build/terraform plan -var-file=../../config/dev/dev.tfvars",
     "func": "func",
     "test": "echo \"No tests yet...\"",
     "clean": "rimraf build",
@@ -24,6 +27,7 @@
     "@ffflorian/jszip-cli": "^3.1.0",
     "azure-functions-core-tools": "^2.7.3188",
     "copyfiles": "^2.4.1",
+    "dotenv-cli": "^4.0.0",
     "mkdirp": "^1.0.4",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2"
