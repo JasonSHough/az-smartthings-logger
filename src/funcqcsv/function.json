@@ -1,0 +1,17 @@
+{
+    "disabled": false,
+    "bindings": [
+        {
+            "type": "queueTrigger",
+            "direction": "in",
+            "name": "myQueueItem",
+            "queueName": "events"
+        },
+        {
+            "type": "blob",
+            "direction": "out",
+            "name": "storage",
+            "path": "/path/to/blob",
+        }
+    ]
+}

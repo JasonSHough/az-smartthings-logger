@@ -1,23 +1,16 @@
 {
   "name": "backend",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "",
   "scripts": {
-    "preterraform:build": "run-s clean",
-    "terraform:build": "copyfiles -f src/terraform/*.tf config/\"${ENV:=dev}\"/settings.tf build/terraform",
-    "preterraform:plan": "run-s terraform:build",
-    "terraform:plan": "terraform -chdir=build/terraform init && terraform -chdir=build/terraform validate && terraform -chdir=build/terraform plan",
-    "preterraform:apply": "run-s terraform:plan",
-    "terraform:apply": "terraform -chdir=build/terraform apply",
-    "func": "func",
-    "test": "echo \"No tests yet...\"",
+    "terraform:build": "copyfiles -f src/terraform/*.tf config/\"${ENV:=dev}\"/settings.tf build/terraform && echo appversion='\"'$npm_package_version'\"\n'funcqcsv='\"'../funcqcsv-$npm_package_version.zip'\"' > build/terraform/terraform.tfvars",
+    "terraform:apply": "terraform -chdir=build/terraform init && terraform -chdir=build/terraform validate && terraform -chdir=build/terraform apply",
     "clean": "rimraf build",
-    "build:prune": "npm prune --production",
     "prebuild:zip": "mkdirp --mode=0700 build",
-    "build:zip": "jszip-cli",
-    "build": "run-s clean build:compile build:zip",
+    "build:zip": "jszip-cli --output build/funcqcsv-$npm_package_version.zip add src/funcqcsv/*",
+    "build": "run-s clean build:zip terraform:build",
     "predeploy": "npm run build",
-    "deploy": "terraform apply"
+    "deploy": "run-s terraform:apply"
   },
   "dependencies": {
     "dotenv": "^8.2.0"
