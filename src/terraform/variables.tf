@@ -2,6 +2,6 @@ variable "appversion" {
     type = string
 }
 
-variable "funcqcsv" {
+variable "functionapp" {
     type = string
 }
