@@ -13,3 +13,6 @@ https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 Azure functions Core Tools -
 https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local
 sudo apt install azure-functions-core-tools-3
+
+Deploying an Azure function app with Terraform
+https://adrianhall.github.io/typescript/2019/10/23/terraform-functions/

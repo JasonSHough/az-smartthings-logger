@@ -1,18 +1,19 @@
 {
   "name": "backend",
-  "version": "1.0.5",
+  "version": "1.0.21",
   "description": "",
   "scripts": {
     "terraform:build": "copyfiles -f src/terraform/*.tf config/\"${ENV:=dev}\"/settings.tf build/terraform && echo appversion='\"'$npm_package_version'\"\n'functionapp='\"'../functionapp-$npm_package_version.zip'\"' > build/terraform/terraform.tfvars",
     "terraform:apply": "terraform -chdir=build/terraform init && terraform -chdir=build/terraform validate && terraform -chdir=build/terraform apply",
     "clean": "rimraf build",
     "prebuild:zip": "mkdirp --mode=0700 build",
-    "build:zip": "jszip-cli --output build/functionapp-$npm_package_version.zip add src/functions/* package.json",
+    "build:zip": "copyfiles -u 1 src/functions/* src/functions/**/* build && copyfiles package.json build/functions && cd build/functions && npm install --production && jszip-cli --output ../functionapp-$npm_package_version.zip add .",
     "build": "run-s clean build:zip terraform:build",
     "predeploy": "npm run build",
     "deploy": "run-s terraform:apply"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.3.0"
   },
   "devDependencies": {
     "@azure/functions": "^1.2.2",
