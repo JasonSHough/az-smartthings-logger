@@ -11,7 +11,7 @@
     "prebuild:zip": "mkdirp --mode=0700 build",
     "build:zip": "copyfiles -u 1 src/functions/* src/functions/**/* build && copyfiles package.json build/functions && cd build/functions && npm install --production && jszip-cli --output ../functionapp-$npm_package_version.zip add .",
     "build": "run-s clean test build:zip terraform:build",
-    "predeploy": "npm run build",
+    "predeploy": "npm version patch && npm run build",
     "deploy": "run-s terraform:apply"
   },
   "dependencies": {
