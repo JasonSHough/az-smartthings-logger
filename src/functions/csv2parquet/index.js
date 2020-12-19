@@ -1,4 +1,5 @@
-const funcMain = async function (context, req) {
+// run is the default entrypoint for Azure Functions
+const run = async function (context, req) {
     const { ContainerClient } = require('@azure/storage-blob');
 
     const client = new ContainerClient(
@@ -29,6 +30,8 @@ const nextBlob = async (context, containerClient) => {
     }
 };
 
+// return bool indicating whether filename matches eventlog file naming convention
+// and is not today's log file
 const isMatch = (context, fname) => {
     // today's file never matches, because it's still being written to
     todayPattern = new RegExp(
@@ -45,6 +48,6 @@ const isMatch = (context, fname) => {
 };
 
 module.exports = {
-    default: funcMain,
+    run: run,
     isMatch: isMatch,
 };
