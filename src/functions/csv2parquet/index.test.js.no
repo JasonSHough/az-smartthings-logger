@@ -1,0 +1,8 @@
+const { AppendBlobClient } = require('@azure/storage-blob');
+const { expect } = require('@jest/globals');
+jest.mock('@azure/storage-blob');
+const func = require('./index');
+
+beforeEach(() => {
+    AppendBlobClient.mockClear();
+});

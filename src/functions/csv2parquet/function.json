@@ -1,0 +1,11 @@
+{
+    "disabled": false,
+    "bindings": [
+        {
+            "type": "blob",
+            "direction": "out",
+            "name": "storage",
+            "path": "eventlog"
+        }
+    ]
+}
