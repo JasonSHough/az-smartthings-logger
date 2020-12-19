@@ -1,26 +1,61 @@
 module.exports = async function (context, req) {
-  const { AppendBlobClient } = require('@azure/storage-blob');
+    const { AppendBlobClient } = require('@azure/storage-blob');
 
-  // accept either object of JSON string which can be converted to object
-  // "{\"date\":\"2020-12-13T21:15:10.047Z\",\"hub\":\"9f44af4b-6337-45b2-ad8a-71261e45b666\",\"deviceId\":\"892870e8-9d95-4b02-a3b6-6ded56f162fe\",\"deviceType\":\"security\",\"eventId\":\"4829d600-3d88-11eb-94f5-0aee323e0c51\",\"device\":\"Great Room Motion\",\"property\":\"motion\",\"value\":\"inactive\",\"unit\":null,\"isphysical\":false,\"isstatechange\":true,\"source\":\"DEVICE\",\"location\":\"Home\"}"
-  try {
-    req = JSON.parse(req);
-    context.log('parsed');
-  } catch (e) {
-    context.log(`error parsing ${e}`);
-  }
+    // convert and validate input data
+    context.log(`input is ${JSON.stringify(req)}`);
+    req = convertReqToObject(context, req);
+    validateReqSchema(req);
 
-  context.log(`input is ${JSON.stringify(req)}`);
+    // determine the filename to append this event to, based on timestamp
+    var fname = req.date.substring(0, 10) + '.jsonl';
+    context.log(`appending to ${fname}`);
 
-  // determine the filename to append this event to, based on timestamp
-  var fname = req.date.substring(0, 10) + '.jsonl' || 'bad_data.jsonl';
-  context.log(`appending to ${fname}`);
-//   context.log(`AzureWebJobsStorage value is ${process.env.AzureWebJobsStorage}`);
+    // store the data as jsonlines
+    var data = `${JSON.stringify(req)}\n`;
+    const blob = new AppendBlobClient(
+        process.env.AzureWebJobsStorage,
+        'eventlog',
+        fname
+    );
+    await blob.createIfNotExists();
+    await blob.appendBlock(data, Buffer.byteLength(data, 'utf8'));
 
-  var data = JSON.stringify(req);
-  const blob = new AppendBlobClient(process.env.AzureWebJobsStorage, 'eventlog', fname);
-  await blob.createIfNotExists();
-  await blob.appendBlock(data, Buffer.byteLength(data, 'utf8'));
+    // end the function
+    context.done();
+};
 
-  context.done();
+// accept either object of JSON string which can be converted to object
+const convertReqToObject = (context, req) => {
+    if (typeof req === 'object') {
+        context.log('Object received.');
+    } else {
+        req = JSON.parse(req);
+        context.log('JSON string parsed successfully.');
+    }
+    return req;
+};
+
+// validate the object 1) has the keys we expect and 2) has a proper date
+const validateReqSchema = (req) => {
+    const props = [
+        'date',
+        'hub',
+        'deviceId',
+        'deviceType',
+        'eventId',
+        'device',
+        'property',
+        'value',
+        'unit',
+        'isphysical',
+        'isstatechange',
+        'source',
+        'location',
+    ];
+    if (
+        !props.every((item) => item in req) ||
+        !req.date.match(/\d{4}-\d{2}-\d{2}T/)
+    ) {
+        throw new Error('Object does not match expected schema.');
+    }
 };

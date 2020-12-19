@@ -1,14 +1,16 @@
 {
   "name": "backend",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "",
   "scripts": {
     "terraform:build": "copyfiles -f src/terraform/*.tf config/\"${ENV:=dev}\"/settings.tf build/terraform && echo appversion='\"'$npm_package_version'\"\n'functionapp='\"'../functionapp-$npm_package_version.zip'\"' > build/terraform/terraform.tfvars",
     "terraform:apply": "terraform -chdir=build/terraform init && terraform -chdir=build/terraform validate && terraform -chdir=build/terraform apply",
+    "functions:test": "prettier -c ./src/functions/**/*.js && jest src/functions",
+    "test": "run-s functions:test",
     "clean": "rimraf build",
     "prebuild:zip": "mkdirp --mode=0700 build",
     "build:zip": "copyfiles -u 1 src/functions/* src/functions/**/* build && copyfiles package.json build/functions && cd build/functions && npm install --production && jszip-cli --output ../functionapp-$npm_package_version.zip add .",
-    "build": "run-s clean build:zip terraform:build",
+    "build": "run-s clean test build:zip terraform:build",
     "predeploy": "npm run build",
     "deploy": "run-s terraform:apply"
   },
@@ -16,13 +18,12 @@
     "@azure/storage-blob": "^12.3.0"
   },
   "devDependencies": {
-    "@azure/functions": "^1.2.2",
     "@ffflorian/jszip-cli": "^3.1.0",
-    "azure-functions-core-tools": "^2.7.3188",
     "copyfiles": "^2.4.1",
-    "dotenv-cli": "^4.0.0",
+    "jest": "^26.6.3",
     "mkdirp": "^1.0.4",
     "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
     "rimraf": "^3.0.2"
   }
 }
