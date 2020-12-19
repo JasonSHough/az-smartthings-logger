@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "",
   "scripts": {
     "terraform:build": "copyfiles -f src/terraform/*.tf config/\"${ENV:=dev}\"/settings.tf build/terraform && echo appversion='\"'$npm_package_version'\"\n'functionapp='\"'../functionapp-$npm_package_version.zip'\"' > build/terraform/terraform.tfvars",
