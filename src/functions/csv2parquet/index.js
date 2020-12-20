@@ -1,20 +1,31 @@
+const { ContainerClient } = require('@azure/storage-blob');
+
 // run is the default entrypoint for Azure Functions
 const run = async function (context, req) {
-    const { ContainerClient } = require('@azure/storage-blob');
-
     const client = new ContainerClient(
         process.env.AzureWebJobsStorage,
         'eventlog'
     );
 
-    let blobToConvert = await nextBlob(context, client);
-    context.log(`blobToConvert is ${blobToConvert}`);
+    context.log(`Scanning for blobs to convert...`);
 
-    // await blob.createIfNotExists();
-    // await blob.appendBlock(data, Buffer.byteLength(data, 'utf8'));
+    let blobToConvert = await nextBlob(context, client);
+    if (blobToConvert) {
+        context.log(`Converting ${blobToConvert}`);
+        await convertBlob(context, blobToConvert);
+        context.log(`Finished.`);
+    } else {
+        context.log(`No blobs found to convert.`);
+    }
 
     // end the function
     context.done();
+};
+
+// file operations to read .jsonl and write .parquet
+const convertBlob = async (context, jsonlBlob) => {
+    // await blob.createIfNotExists();
+    // await blob.appendBlock(data, Buffer.byteLength(data, 'utf8'));
 };
 
 // return the first blob satisfied by isMatch()
@@ -39,10 +50,7 @@ const isMatch = (context, fname) => {
     );
 
     if (fname.match(/\d{4}-\d{2}-\d{2}\.jsonl/) && !fname.match(todayPattern)) {
-        context.log(`Blob ${fname}: hit`);
         return true;
-    } else {
-        context.log(`Blob ${fname}: miss`);
     }
     return false;
 };
