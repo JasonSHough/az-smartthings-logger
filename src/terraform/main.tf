@@ -79,6 +79,7 @@ resource "azurerm_app_service_plan" "asp" {
     resource_group_name = azurerm_resource_group.rg.name
     location = var.location
     kind = "FunctionApp"
+    reserved = true
     sku {
         tier = "Dynamic"
         size = "Y1"
@@ -92,6 +93,7 @@ resource "azurerm_function_app" "functions" {
     resource_group_name = azurerm_resource_group.rg.name
     app_service_plan_id = azurerm_app_service_plan.asp.id
     storage_connection_string = azurerm_storage_account.storage.primary_connection_string
+    os_type = "linux"
     version = "~3"
 
     app_settings = {
