@@ -21,5 +21,5 @@ variable "environment" {
 
 variable "location" {
     type = string
-    default = "CanadaCentral"
+    default = "eastus"
 }

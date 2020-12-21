@@ -1,21 +1,26 @@
 {
   "name": "backend",
-  "version": "1.0.29",
+  "version": "1.0.52",
   "description": "",
   "scripts": {
     "terraform:build": "copyfiles -f src/terraform/*.tf config/\"${ENV:=dev}\"/settings.tf build/terraform && echo appversion='\"'$npm_package_version'\"\n'functionapp='\"'../functionapp-$npm_package_version.zip'\"' > build/terraform/terraform.tfvars",
     "terraform:apply": "terraform -chdir=build/terraform init && terraform -chdir=build/terraform validate && terraform -chdir=build/terraform apply",
-    "functions:test": "prettier -c ./src/functions/**/*.js && jest src/functions",
+    "terraform:destroy": "terraform -chdir=build/terraform init && terraform -chdir=build/terraform validate && terraform -chdir=build/terraform destroy",
+    "functions:test": "prettier -c ./src/functions/**/*.js && jest --silent src/functions",
     "test": "run-s functions:test",
     "clean": "rimraf build",
     "prebuild:zip": "mkdirp --mode=0700 build",
     "build:zip": "copyfiles -u 1 src/functions/* src/functions/**/* build && copyfiles package.json build/functions && cd build/functions && npm install --production && jszip-cli --output ../functionapp-$npm_package_version.zip add .",
     "build": "run-s clean test build:zip terraform:build",
-    "predeploy": "npm version patch && npm run build",
-    "deploy": "run-s terraform:apply"
+    "predeploy": "npm --no-git-tag-version version patch && npm run build",
+    "deploy": "run-s terraform:apply",
+    "predestroy": "npm --no-git-tag-version version patch && npm run build",
+    "destroy": "run-s terraform:destroy"
   },
   "dependencies": {
-    "@azure/storage-blob": "^12.3.0"
+    "n-readlines": "^1.0.1",
+    "parquetjs-lite": "^0.8.7",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@ffflorian/jszip-cli": "^3.1.0",
@@ -24,6 +29,7 @@
     "mkdirp": "^1.0.4",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "tmp": "^0.2.1"
   }
 }

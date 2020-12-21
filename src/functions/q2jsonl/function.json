@@ -6,12 +6,6 @@
             "direction": "in",
             "name": "myQueueItem",
             "queueName": "events"
-        },
-        {
-            "type": "blob",
-            "direction": "out",
-            "name": "storage",
-            "path": "eventlog"
         }
     ]
 }
