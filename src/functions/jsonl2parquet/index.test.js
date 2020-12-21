@@ -29,11 +29,13 @@ test('fileToProcess returns correct values', () => {
     const files = [
         'blah.txt',
         '2019-01-01.jsonl',
+        '2019-01-01.parquet',
         '2019-01-02.jsonl',
+        '2019-01-03.jsonl',
         todayFile,
     ].map((item) => `${path}/${item}`);
 
-    const validFiles = ['2019-01-01.jsonl', '2019-01-02.jsonl'].map(
+    const validFiles = ['2019-01-02.jsonl', '2019-01-03.jsonl'].map(
         (item) => `${path}/${item}`
     );
 
@@ -41,6 +43,7 @@ test('fileToProcess returns correct values', () => {
     for (const file of files) {
         fs.closeSync(fs.openSync(file, 'w'));
     }
+    // only .jsonl files that are 1) not today and 2) don't have a .parquet already
     expect(filesToProcess(path).sort()).toEqual(validFiles.sort());
 });
 

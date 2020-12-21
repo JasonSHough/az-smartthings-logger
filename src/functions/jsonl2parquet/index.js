@@ -54,10 +54,12 @@ const convertFile = async (inputFile) => {
 };
 
 const filesToProcess = (path = '/data/events') => {
-    return fs
-        .readdirSync(path)
-        .filter((fn) => isMatch(fn))
-        .map((item) => `${path}/${item}`);
+    var allFiles = fs.readdirSync(path);
+    var validJsonl = allFiles.filter((fn) => isMatch(fn));
+    var filtered = validJsonl.filter(
+        (fn) => !allFiles.includes(fn.replace('.jsonl', '.parquet'))
+    );
+    return filtered.map((item) => `${path}/${item}`);
 };
 
 // return bool indicating whether filename matches eventlog file naming convention
