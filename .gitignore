@@ -10,3 +10,5 @@ dist
 
 backend.tf
 .env.*
+
+.vscode
