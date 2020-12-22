@@ -14,7 +14,7 @@
  */
 
 definition(
-    name: 'ST-Queue',
+    name: 'azlogger',
     namespace: 'jschnurr',
     author: 'Jeff Schnurr',
     description: 'Smartthings Azure Queue Integration',
