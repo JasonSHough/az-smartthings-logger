@@ -1,17 +1,17 @@
 # Backend config (optional).  Remove block for local default.
 terraform {
   backend "azurerm" {
-    resource_group_name="tfstate"
-    storage_account_name="storage435433"
-    container_name="tfstate"
-    key="az-smartthing-logger/prod.tfstate"
+    resource_group_name="smartthings"
+    storage_account_name="betheladls"
+    container_name="betheliot"
+    key="az-smartthing-logger/prod.betheliot"
   }
 }
 
 # Terraform configuration settings
 variable "prefix" {
     type = string
-    default = "azlogger"
+    default = "iotlogger"
 }
 
 variable "environment" {
@@ -21,5 +21,5 @@ variable "environment" {
 
 variable "location" {
     type = string
-    default = "eastus"
+    default = "centralcanada"
 }

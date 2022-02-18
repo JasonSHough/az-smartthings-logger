@@ -1,7 +1,7 @@
 /**
- *  Azure Queues
+ *  Azure Event Hub
  *
- *  Copyrigth 2020 Jeff Schnurr
+ *  Copyrigth 2022 Tobi Dipeolu
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -14,17 +14,16 @@
  */
 
 definition(
-    name: 'azlogger',
-    namespace: 'jschnurr',
-    author: 'Jeff Schnurr',
+    name: 'betheliot',
+    namespace: 'tdipeolu',
+    author: 'Tobi Dipeolu',
     description: 'Smartthings Azure Queue Integration',
     category: 'My Apps',
     iconUrl: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png',
     iconX2Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png',
     iconX3Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png') {
-        appSetting 'StorageAccount'
-        appSetting 'Queue'
-        appSetting 'SASToken'  // allowed services: Queue, Allowed Resource Types: Object, Allowed Permissions: Add
+        appSetting 'EventHubSecret'
+        appSetting 'EventHubURL'
     }
 
 preferences {
@@ -106,8 +105,8 @@ def sendEvent(evt, sensorType) {
     log.debug "Sending AzureQ event payload: ${payload}"
     def encoded = payload.bytes.encodeBase64()
     def params = [
-        uri: "https://${appSettings.StorageAccount}.queue.core.windows.net/${appSettings.Queue}/messages${appSettings.SASToken}",
-        body: "<QueueMessage><MessageText>${encoded}</MessageText></QueueMessage>",
+        uri: "${appSettings.EventHubURL}/messages${appSettings.EventHubSecret}",
+        body: "${payload}",
         contentType: 'application/xml; charset=utf-8',
         requestContentType: 'application/atom+xml;type=entry;charset=utf-8',
         headers: ['x-ms-date': now],
@@ -165,3 +164,16 @@ def handleSwitchEvent (evt) {
 def handleOtherEvent (evt) {
     sendEvent(evt, 'other')
 }
+© 2022 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Loading complete
